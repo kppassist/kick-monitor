@@ -209,11 +209,23 @@
 
   function cleanMessageText(text) {
     return text
+      // strip leading timestamp e.g. "3:45 AM" or "11:02PM"
       .replace(/^\d{1,2}:\d{2}\s*[AP]M\s*/i, '')
+      // strip bare AM/PM at start
       .replace(/^[AP]M\s+/i, '')
+      // strip "Global" badge label
       .replace(/^global\s+/i, '')
-      .replace(/^@?[\w\-\.]{1,30}:\s*/, '')
+      // strip anything up to and including the last ":" on the first line
+      // handles "username:", "@username:", "1-Month Subscriber (username):", etc.
+      .replace(/^[^\n]{0,100}:\s*/, '')
       .trim();
+  }
+
+  function isSystemMessage(text) {
+    return /subscriber|subscribed|follow|redeemed|level/i.test(text) ||
+           text.includes('@') ||
+           // patterns like "1-Month", "3-Month", gift subs, etc.
+           /\d+-month|gifted|gift sub|raid/i.test(text);
   }
 
   function extractMessageText(node) {
@@ -272,7 +284,7 @@
     const isBot = sender && BOT_USERNAMES.has(sender);
     const isTimestampArtifact = /[AP]MLevel/i.test(text);
     const isUIArtifact = /^(global|am|pm)$/i.test(text.trim());
-    const isUILeakage = /subscriber|subscribed|level|redeemed|month|follow/i.test(text) || text.includes('@');
+    const isUILeakage = isSystemMessage(text);
     // reject if text is just a username (no spaces, looks like a handle)
     const isBareName = /^@?[\w\-\.]{1,30}$/.test(text.trim()) && !/\s/.test(text.trim());
     if (!isWSpam && !isCommand && !isBot && !isTimestampArtifact && !isUIArtifact && !isUILeakage && !isBareName && text.length >= 3 && text.length <= 200) {
