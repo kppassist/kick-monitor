@@ -272,7 +272,7 @@
     const isBot = sender && BOT_USERNAMES.has(sender);
     const isTimestampArtifact = /[AP]MLevel/i.test(text);
     const isUIArtifact = /^(global|am|pm)$/i.test(text.trim());
-    const isUILeakage = /subscriber|subscribed|level|follow|redeemed/i.test(text);
+    const isUILeakage = /subscriber|subscribed|level|redeemed|follow/i.test(text) || text.includes('@');
     // reject if text is just a username (no spaces, looks like a handle)
     const isBareName = /^@?[\w\-\.]{1,30}$/.test(text.trim()) && !/\s/.test(text.trim());
     if (!isWSpam && !isCommand && !isBot && !isTimestampArtifact && !isUIArtifact && !isUILeakage && !isBareName && text.length >= 3 && text.length <= 200) {
