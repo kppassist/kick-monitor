@@ -222,7 +222,7 @@
   }
 
   function isSystemMessage(text) {
-    return /subscriber|subscribed|follow|redeemed|level/i.test(text) ||
+    return /subscriber|subscribed|follow|redeemed|level|replying to/i.test(text) ||
            text.includes('@') ||
            // patterns like "1-Month", "3-Month", gift subs, etc.
            /\d+-month|gifted|gift sub|raid/i.test(text);
@@ -238,6 +238,12 @@
 
     const source = contentEl || node;
     const clone = source.cloneNode(true);
+
+    // Remove reply quote blocks (the quoted original message shown above a reply)
+    clone.querySelectorAll(
+      '[class*="reply"], [data-testid*="reply"], ' +
+      '[class*="quoted"], [class*="quote"], [class*="original-message"]'
+    ).forEach(el => el.remove());
 
     // Remove timestamp/username/badge elements (only needed on full-node fallback,
     // but harmless to run on contentEl clones too)
